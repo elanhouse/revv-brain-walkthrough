@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Occupancy Bucketing - Storage Portfolio Analysis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            color: #1e293b;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d4a6f 100%);
+            color: white;
+            padding: 2.5rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.125rem;
+            opacity: 0.9;
+        }
+
+        .intro {
+            padding: 2rem;
+            background: #f8fafc;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .intro h2 {
+            color: #1e3a5f;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .intro p {
+            line-height: 1.7;
+            color: #475569;
+            font-size: 1.05rem;
+        }
+
+        .buckets-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            padding: 2rem;
+        }
+
+        .bucket {
+            border-radius: 12px;
+            padding: 2rem;
+            border: 3px solid;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bucket:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+        }
+
+        .bucket.stars {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border-color: #10b981;
+        }
+
+        .bucket.cash-cows {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border-color: #f59e0b;
+        }
+
+        .bucket.growth {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border-color: #3b82f6;
+        }
+
+        .bucket.turnaround {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border-color: #ef4444;
+        }
+
+        .bucket-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .bucket-icon {
+            font-size: 3rem;
+        }
+
+        .bucket-title {
+            flex: 1;
+        }
+
+        .bucket-title h3 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .bucket-title .subtitle {
+            font-size: 0.95rem;
+            opacity: 0.8;
+            font-weight: 500;
+        }
+
+        .bucket-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.7);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e3a5f;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #64748b;
+            margin-top: 0.25rem;
+        }
+
+        .facilities-list {
+            margin-top: 1.5rem;
+        }
+
+        .facilities-list h4 {
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+            color: #1e3a5f;
+            font-weight: 600;
+        }
+
+        .facility-item {
+            background: rgba(255,255,255,0.8);
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid;
+        }
+
+        .bucket.stars .facility-item {
+            border-left-color: #10b981;
+        }
+
+        .bucket.cash-cows .facility-item {
+            border-left-color: #f59e0b;
+        }
+
+        .bucket.growth .facility-item {
+            border-left-color: #3b82f6;
+        }
+
+        .bucket.turnaround .facility-item {
+            border-left-color: #ef4444;
+        }
+
+        .facility-name {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .facility-occupancy {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .story-box {
+            background: rgba(255,255,255,0.9);
+            padding: 1.25rem;
+            border-radius: 8px;
+            margin-top: 1.5rem;
+            border-left: 4px solid;
+        }
+
+        .bucket.stars .story-box {
+            border-left-color: #10b981;
+        }
+
+        .bucket.cash-cows .story-box {
+            border-left-color: #f59e0b;
+        }
+
+        .bucket.growth .story-box {
+            border-left-color: #3b82f6;
+        }
+
+        .bucket.turnaround .story-box {
+            border-left-color: #ef4444;
+        }
+
+        .story-box h5 {
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+        }
+
+        .story-box p {
+            line-height: 1.6;
+            color: #475569;
+            font-style: italic;
+        }
+
+        .strategy-box {
+            background: rgba(255,255,255,0.9);
+            padding: 1.25rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .strategy-box h5 {
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            margin-bottom: 0.75rem;
+        }
+
+        .strategy-list {
+            list-style: none;
+        }
+
+        .strategy-list li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: #475569;
+        }
+
+        .strategy-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            font-weight: 700;
+        }
+
+        .bucket.stars .strategy-list li:before {
+            color: #10b981;
+        }
+
+        .bucket.cash-cows .strategy-list li:before {
+            color: #f59e0b;
+        }
+
+        .bucket.growth .strategy-list li:before {
+            color: #3b82f6;
+        }
+
+        .bucket.turnaround .strategy-list li:before {
+            color: #ef4444;
+        }
+
+        .summary {
+            background: #1e3a5f;
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .summary h2 {
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .summary p {
+            font-size: 1.125rem;
+            line-height: 1.7;
+            opacity: 0.95;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 968px) {
+            .buckets-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏢 Facility Bucketing by Occupancy</h1>
+            <p>How We Group Your Properties to Maximize Revenue</p>
+        </div>
+
+        <div class="intro">
+            <h2>The Problem Most Storage Owners Face</h2>
+            <p>
+                You probably look at all your facilities the same way—same ad budget, same campaigns, same pricing strategy. 
+                But here's what we've found: <strong>facilities fall into four different buckets based on occupancy and customer retention</strong>, 
+                and each bucket needs a completely different approach. Let me show you how we group them.
+            </p>
+        </div>
+
+        <div class="buckets-container">
+            <!-- STARS BUCKET -->
+            <div class="bucket stars">
+                <div class="bucket-header">
+                    <div class="bucket-icon">⭐</div>
+                    <div class="bucket-title">
+                        <h3>STARS</h3>
+                        <div class="subtitle">High Occupancy + Low Churn</div>
+                    </div>
+                </div>
+
+                <div class="bucket-stats">
+                    <div class="stat-card">
+                        <div class="stat-value">12</div>
+                        <div class="stat-label">Facilities</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">94%</div>
+                        <div class="stat-label">Avg Occupancy</div>
+                    </div>
+                </div>
+
+                <div class="facilities-list">
+                    <h4>Your Star Facilities:</h4>
+                    <div class="facility-item">
+                        <span class="facility-name">Dallas - Main Street</span>
+                        <span class="facility-occupancy">97%</span>
+                    </div>
+                    <div class="facility-item">
+                        <span class="facility-name">Houston - Westside</span>
+                        <span class="facility-occupancy">95%</span>
+                    </div>
+                    <div class="facility-item">
+                        <span class="facility-name">Austin - Downtown</span>
+                        <span class="facility-occupancy">96%</span>
+                    </div>
+                    <div class="facility-item">
+                        <span class="facility-name">San Antonio - North</span>
+                        <span class="facility-occupancy">93%</span>
+                    </div>
+                    <div class="facility-item">
+                        <span class="facility-name">+ 8 more facilities</span>
+                        <span class="facility-occupancy">90%+</span>
+                    </div>
+                </div>
+
+                <div class="strategy-box">
+                    <h5>Strategy for Stars:</h5>
+                    <ul class="strategy-list">
+                        <li>Raise prices $15-25/month</li>
+                        <li>Keep ads ON (target premium keywords)</li>
+                        <li>Build ECRI headroom with new tenants</li>
+                        <li>Maintain or slightly increase ad spend</li>
+                    </ul>
+                </div>
+
+                <div class="story-box">
+                    <h5>Real Story</h5>
+                    <p>
+                        "We had a facility at 97% occupancy. The owner thought it was perfect and wanted to turn off ads. 
+                        But we showed them: raise prices $20 AND keep ads on. New tenants at higher rates give you ECRI headroom. 
+                        They went from 97% at $120/month to 97% at $140/month. Same occupancy, $20 more per unit—that's $24,000 more per year on a 100-unit facility."
+                    </p>
+                </div>
+            </div>
+
+            <!-- CASH COWS BUCKET -->
+            <div class="bucket cash-cows">
+                <div class="bucket-header">
+                    <div class="bucket-icon">💰</div>
+                    <div class="bucket-title">
+                        <h3>CASH COWS</h3>
+                        <div class="subtitle">High Occupancy + High Churn</div>
+                    </div>
+                </div>
+
+                <div class="bucket-stats">
+                    <div class="stat-card">
+                        <div class="stat-value">8</div>
+                        <div class="stat-label">Facilities</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">91%</div>
+                        <div class="stat-label">Avg Occupancy</div>
+                    </div>
+                </div>
+
+                <div class="facilities-list">
+                    <h4>Your Cash Cow Facilities:</h4>
+                    <div class="facility-item">
+                        <span class="facility-name">Dallas - Oak Cliff</span>
+                        <span class="facility-occupancy">92%</span>
+                    </div>
+                    <div class="facility-item">
+                        <span class="facility-name">Houston - Eastside</span>
+                        <span class="facility-occupancy">90%</span>
+                    </div>
+                    <div class="facility-item">
+                        <span class="facility-name">Fort Worth - South</span>
+                        <span class="facility-occupancy">93%</span>
+                    </div>
+                    <div class="facility-item">
+                        <span class="facility-name">+ 5 more facilities</span>
+                        <span class="facility-occupancy">88-92%</span>
+                    </div>
+                </div>
+
+                <div class="strategy-box">
+                    <h5>Strategy for Cash Cows:</h5>
+                    <ul class="strategy-list">
+                        <li>Raise prices modestly $10-15/month</li>
+                        <li>Reduce ad spend 30-50%</li>
+                        <li>Focus on retention over acquisition</li>
+                        <li>Investigate why customers are leaving</li>
+                    </ul>
+                </div>
+
+                <div class="story-box">
+                    <h5>Real Story</h5>
+                    <p>
+                        "One operator had a facility at 92% occupancy. Looked great on paper. But customers were leaving after just 3 months. 
+                        They were spending $3,000/month on ads just to replace churn. We cut ad spend 40%, raised prices $12, and focused on retention. 
+                        Occupancy stayed at 92%, but revenue went up $8,000/month because customers stayed longer. That's $96,000 more per year."
+                    </p>
+                </div>
+            </div>
+
+            <!-- GROWTH BUCKET -->
+            <div class="bucket growth">
+                <div class="bucket-header">
+                    <div class="bucket-icon">📈</div>
+                    <div class="bucket-title">
+                        <h3>GROWTH</h3>
+                        <div class="subtitle">Low Occupancy + Low Churn</div>
+                    </div>
+                </div>
+
+                <div class="bucket-stats">
+                    <div class="stat-card">
+                        <div class="stat-value">20</div>
+                        <div class="stat-label">Facilities</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">76%</div>
+                        <div class="stat-label">Avg Occupancy</div>
+                    </div>
+                </div>
+
+                <div class="facilities-list">
+                    <h4>Your Growth Facilities:</h4>
+                    <div class="facility-item">
+                        <span class="facility-name">Dallas - Plano</span>
+                        <span class="facility-occupancy">78%</span>
+                    </div>
+                    <div class="facility-item">
+                        <span class="facility-name">Houston - Katy</span>
+                        <span class="facility-occupancy">75%</span>
+                    </div>
+                    <div class="facility-item">
+                        <span class="facility-name">Austin - Round Rock</span>
+                        <span class="facility-occupancy">82%</span>
+                    </div>
+                    <div class="facility-item">
+                        <span class="facility-name">San Antonio - Alamo Heights</span>
+                        <span class="facility-occupancy">74%</span>
+                    </div>
+                    <div class="facility-item">
+                        <span class="facility-name">+ 16 more facilities</span>
+                        <span class="facility-occupancy">70-85%</span>
+                    </div>
+                </div>
+
+                <div class="strategy-box">
+                    <h5>Strategy for Growth:</h5>
+                    <ul class="strategy-list">
+                        <li>Increase ad spend 50-100%</li>
+                        <li>Target volume keywords</li>
+                        <li>Hold or slightly increase prices</li>
+                        <li>Focus on move-ins</li>
+                    </ul>
+                </div>
+
+                <div class="story-box">
+                    <h5>Real Story</h5>
+                    <p>
+                        "Facility at 78% occupancy, but customers stay 14 months on average when they move in. Good fundamentals, just needs demand. 
+                        We doubled their ad spend from $1,500 to $3,000/month. Occupancy went from 78% to 88% in 90 days. 
+                        Same customer quality, just more of them. That's 10% more occupancy—on a 200-unit facility, that's 20 more units at $150/month = $36,000 more per year."
+                    </p>
+                </div>
+            </div>
+
+            <!-- TURNAROUND BUCKET -->
+            <div class="bucket turnaround">
+                <div class="bucket-header">
+                    <div class="bucket-icon">🔄</div>
+                    <div class="bucket-title">
+                        <h3>TURNAROUND</h3>
+                        <div class="subtitle">Low Occupancy + High Churn</div>
+                    </div>
+                </div>
+
+                <div class="bucket-stats">
+                    <div class="stat-card">
+                        <div class="stat-value">10</div>
+                        <div class="stat-label">Facilities</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">68%</div>
+                        <div class="stat-label">Avg Occupancy</div>
+                    </div>
+                </div>
+
+                <div class="facilities-list">
+                    <h4>Your Turnaround Facilities:</h4>
+                    <div class="facility-item">
+                        <span class="facility-name">Dallas - South Oak Cliff</span>
+                        <span class="facility-occupancy">65%</span>
+                    </div>
+                    <div class="facility-item">
+                        <span class="facility-name">Houston - Third Ward</span>
+                        <span class="facility-occupancy">62%</span>
+                    </div>
+                    <div class="facility-item">
+                        <span class="facility-name">Fort Worth - Eastside</span>
+                        <span class="facility-occupancy">71%</span>
+                    </div>
+                    <div class="facility-item">
+                        <span class="facility-name">+ 7 more facilities</span>
+                        <span class="facility-occupancy">60-72%</span>
+                    </div>
+                </div>
+
+                <div class="strategy-box">
+                    <h5>Strategy for Turnaround:</h5>
+                    <ul class="strategy-list">
+                        <li>Fix operations first (investigate root cause)</li>
+                        <li>Aggressive ad spend 2-3x (after fixing ops)</li>
+                        <li>Lower prices 10-15% to rebuild</li>
+                        <li>Rebuild reputation and occupancy</li>
+                    </ul>
+                </div>
+
+                <div class="story-box">
+                    <h5>Real Story</h5>
+                    <p>
+                        "Facility at 65% occupancy, customers leaving after 3 months. We investigated: poor facility condition, slow response to issues. 
+                        We helped them fix operations first—better maintenance, faster response. Then we tripled ad spend and cut prices 12% to rebuild. 
+                        Went from 65% to 82% in 6 months. That's 17% more occupancy—on a 150-unit facility, that's 25 more units at $130/month = $39,000 more per year."
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="summary">
+            <h2>The Bottom Line</h2>
+            <p>
+                We worked with a 50-location operator who was spending the same $1,000/day on every facility. 
+                We put them in this framework and optimized each bucket. <strong>Same total budget, but occupancy went up 8% across the portfolio in 90 days. 
+                Revenue went up $180,000/year just from treating facilities differently.</strong>
+            </p>
+            <p style="margin-top: 1rem; font-size: 1rem; opacity: 0.9;">
+                In our 14-day diagnostic, we'll create this exact breakdown for your portfolio. 
+                You'll see which facilities are in which bucket, what you're doing now vs what you should be doing, 
+                and how much money you're leaving on the table by treating them all the same.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+
