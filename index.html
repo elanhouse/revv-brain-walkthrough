@@ -47,6 +47,83 @@
         .sidebar-header p {
             font-size: 0.875rem;
             opacity: 0.8;
+            margin-bottom: 1rem;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .view-toggle-btn {
+            flex: 1;
+            padding: 0.5rem 0.75rem;
+            border: 2px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .view-toggle-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .view-toggle-btn.active {
+            background: rgba(255,255,255,0.25);
+            border-color: rgba(255,255,255,0.5);
+        }
+
+        /* Staff View (Yellow Theme) */
+        body.staff-view .sidebar {
+            background: linear-gradient(180deg, #d97706 0%, #b45309 100%);
+        }
+
+        body.staff-view .menu-item.active {
+            border-left-color: #fbbf24;
+        }
+
+        body.staff-view .menu-item.active .menu-item-number {
+            background: #fbbf24;
+        }
+
+        body.staff-view .menu-item:hover {
+            border-left-color: #fbbf24;
+        }
+
+        /* Owner View (Blue Theme - Default) */
+        body.owner-view .sidebar {
+            background: linear-gradient(180deg, #1e3a5f 0%, #2d4a6f 100%);
+        }
+
+        body.owner-view .menu-item.active {
+            border-left-color: #10b981;
+        }
+
+        body.owner-view .menu-item.active .menu-item-number {
+            background: #10b981;
+        }
+
+        body.owner-view .menu-item:hover {
+            border-left-color: #10b981;
+        }
+
+        /* Staff-only content */
+        .staff-only {
+            display: none;
+        }
+
+        body.staff-view .staff-only {
+            display: block;
+        }
+
+        body.owner-view .staff-only {
+            display: none;
         }
 
         .menu-section {
@@ -258,6 +335,40 @@
         <div class="sidebar-header">
             <h1>Revv Brain</h1>
             <p>Sales Demo Walkthrough</p>
+            <div class="view-toggle">
+                <button class="view-toggle-btn active" id="owner-view-btn" onclick="switchView('owner')">
+                    Owner
+                </button>
+                <button class="view-toggle-btn" id="staff-view-btn" onclick="switchView('staff')">
+                    Staff
+                </button>
+            </div>
+        </div>
+
+        <!-- Staff-only: Sales Scripts Section -->
+        <div class="menu-section staff-only" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem; margin-top: 1.5rem;">
+            <div class="menu-section-title">Sales Support</div>
+            <a href="#" class="menu-item" onclick="showDemo('sales-script', event)">
+                <span class="menu-item-number">📝</span>
+                <div>
+                    <div style="font-weight: 600;">Sales Script</div>
+                    <div style="font-size: 0.75rem; opacity: 0.8; margin-top: 2px;">Questions, transitions, objections</div>
+                </div>
+            </a>
+            <a href="#" class="menu-item" onclick="showDemo('discovery-questions', event)">
+                <span class="menu-item-number">❓</span>
+                <div>
+                    <div style="font-weight: 600;">Discovery Questions</div>
+                    <div style="font-size: 0.75rem; opacity: 0.8; margin-top: 2px;">10 core questions to ask</div>
+                </div>
+            </a>
+            <a href="#" class="menu-item" onclick="showDemo('objection-handling', event)">
+                <span class="menu-item-number">💬</span>
+                <div>
+                    <div style="font-weight: 600;">Objection Responses</div>
+                    <div style="font-size: 0.75rem; opacity: 0.8; margin-top: 2px;">How to handle common objections</div>
+                </div>
+            </a>
         </div>
 
         <div class="menu-section">
@@ -378,6 +489,18 @@
     </main>
 
     <script>
+        // View Toggle
+        function switchView(view) {
+            document.body.className = view + '-view';
+            document.getElementById('owner-view-btn').classList.toggle('active', view === 'owner');
+            document.getElementById('staff-view-btn').classList.toggle('active', view === 'staff');
+            localStorage.setItem('demo-view', view);
+        }
+
+        // Load saved view preference
+        const savedView = localStorage.getItem('demo-view') || 'owner';
+        switchView(savedView);
+
         // Load demo content
         function showDemo(demoId, event) {
             // Prevent default link behavior
@@ -408,6 +531,12 @@
             
             if (demoId === 'occupancy-bucketing') {
                 loadOccupancyBucketing(container);
+            } else if (demoId === 'sales-script') {
+                loadSalesScript(container);
+            } else if (demoId === 'discovery-questions') {
+                loadDiscoveryQuestions(container);
+            } else if (demoId === 'objection-handling') {
+                loadObjectionHandling(container);
             } else if (demoId === 'hidden-cost' || demoId === 'ad-spend-need' || demoId === 'ad-attribution' || demoId === 'unit-level' || demoId === 'detection-speed' || demoId === 'competitive-intel' || demoId === 'pricing-power' || demoId === 'portfolio-health') {
                 // Coming soon demos
                 container.innerHTML = `
@@ -468,14 +597,142 @@
         }
 
         function loadOccupancyBucketing(container) {
+            const isStaffView = document.body.classList.contains('staff-view');
             // Load the occupancy bucketing HTML in an iframe for clean separation
             container.innerHTML = `
                 <div style="background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); height: calc(100vh - 4rem);">
                     <iframe 
-                        src="01_Occupancy_Bucketing_Mockup.html" 
+                        src="01_Occupancy_Bucketing_Mockup.html${isStaffView ? '?view=staff' : '?view=owner'}" 
                         style="width: 100%; height: 100%; border: none;"
                         title="Occupancy Bucketing Demo">
                     </iframe>
+                </div>
+            `;
+        }
+
+        function loadSalesScript(container) {
+            container.innerHTML = `
+                <div style="background: white; border-radius: 16px; padding: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05); max-height: calc(100vh - 4rem); overflow-y: auto;">
+                    <h2 style="color: #1e3a5f; margin-bottom: 1.5rem;">Sales Script: Occupancy Bucketing</h2>
+                    <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+                        <h3 style="color: #92400e; margin-bottom: 0.75rem;">The Question (Discovery)</h3>
+                        <p style="color: #78350f; margin-bottom: 0.5rem;"><strong>ASK:</strong> "Do you look at all your properties the same way, or do you treat them differently?"</p>
+                        <p style="color: #78350f; margin-bottom: 0.5rem;"><strong>FOLLOW-UP:</strong> "What percentage of your properties are actually having a good month right now?"</p>
+                        <p style="color: #78350f; margin-bottom: 0.5rem;"><strong>LISTEN FOR:</strong> "We treat them all the same", "Same budget everywhere", "We don't really differentiate"</p>
+                    </div>
+                    <div style="background: #dbeafe; border-left: 4px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+                        <h3 style="color: #1e40af; margin-bottom: 0.75rem;">Show the Framework</h3>
+                        <p style="color: #1e3a8a; margin-bottom: 0.5rem;"><strong>SAY:</strong> "Most operators we work with find the answer is 'we probably shouldn't treat them all the same.' Let me show you a simple framework we use."</p>
+                        <p style="color: #1e3a8a;"><strong>EXPLAIN:</strong> "We put every facility into one of four buckets based on two things: occupancy and customer retention. Each bucket needs a completely different strategy."</p>
+                    </div>
+                    <div style="background: #ecfdf5; border-left: 4px solid #10b981; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+                        <h3 style="color: #065f46; margin-bottom: 0.75rem;">The Story (Proof)</h3>
+                        <p style="color: #047857; margin-bottom: 0.5rem;"><strong>SAY:</strong> "We worked with a 50-location operator. They were spending the same $1,000/day on every facility. We put them in this framework and found:"</p>
+                        <ul style="color: #047857; margin-left: 1.5rem; margin-top: 0.5rem;">
+                            <li>12 facilities in Stars: Cut ads 30%, raised prices $18</li>
+                            <li>8 facilities in Cash Cows: Cut ads 50%, raised prices $12, focused on retention</li>
+                            <li>20 facilities in Growth: Doubled ad spend, held prices</li>
+                            <li>10 facilities in Turnaround: Tripled ads, cut prices 10%, fixed operations</li>
+                        </ul>
+                        <p style="color: #047857; margin-top: 0.75rem;"><strong>THE RESULT:</strong> "Same total budget, but occupancy went up 8% across the portfolio in 90 days. Revenue went up $180K/year just from treating facilities differently."</p>
+                    </div>
+                    <div style="background: #fef2f2; border-left: 4px solid #ef4444; padding: 1.5rem; border-radius: 8px;">
+                        <h3 style="color: #991b1b; margin-bottom: 0.75rem;">The Close</h3>
+                        <p style="color: #7f1d1d;"><strong>SAY:</strong> "In our 14-day diagnostic, we'll create this exact breakdown for your portfolio. We'll show you which facilities are in which bucket, what you're doing now vs what you should be doing, and how much money you're leaving on the table by treating them all the same."</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function loadDiscoveryQuestions(container) {
+            container.innerHTML = `
+                <div style="background: white; border-radius: 16px; padding: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05); max-height: calc(100vh - 4rem); overflow-y: auto;">
+                    <h2 style="color: #1e3a5f; margin-bottom: 1.5rem;">10 Core Discovery Questions</h2>
+                    <div style="display: grid; gap: 1rem;">
+                        <div style="background: #f8fafc; padding: 1.25rem; border-radius: 8px; border-left: 4px solid #1e3a5f;">
+                            <h4 style="color: #1e3a5f; margin-bottom: 0.5rem;">1. Detection Speed</h4>
+                            <p style="color: #475569; margin-bottom: 0.25rem;"><strong>ASK:</strong> "When one of your locations starts dropping, how long does it take before you catch it?"</p>
+                            <p style="color: #64748b; font-size: 0.9rem;"><strong>FOLLOW-UP:</strong> "What would it be worth to know that within two weeks instead of months?"</p>
+                        </div>
+                        <div style="background: #f8fafc; padding: 1.25rem; border-radius: 8px; border-left: 4px solid #1e3a5f;">
+                            <h4 style="color: #1e3a5f; margin-bottom: 0.5rem;">2. Definition of a Good Month</h4>
+                            <p style="color: #475569; margin-bottom: 0.25rem;"><strong>ASK:</strong> "What does a good month look like for you?"</p>
+                            <p style="color: #64748b; font-size: 0.9rem;"><strong>FOLLOW-UP:</strong> "What percentage of your properties are actually having a good month right now?"</p>
+                        </div>
+                        <div style="background: #f8fafc; padding: 1.25rem; border-radius: 8px; border-left: 4px solid #1e3a5f;">
+                            <h4 style="color: #1e3a5f; margin-bottom: 0.5rem;">3. Customer Quality</h4>
+                            <p style="color: #475569; margin-bottom: 0.25rem;"><strong>ASK:</strong> "How are you finding more valuable customers?"</p>
+                            <p style="color: #64748b; font-size: 0.9rem;"><strong>FOLLOW-UP:</strong> "How do you define a more valuable customer?"</p>
+                        </div>
+                        <div style="background: #f8fafc; padding: 1.25rem; border-radius: 8px; border-left: 4px solid #1e3a5f;">
+                            <h4 style="color: #1e3a5f; margin-bottom: 0.5rem;">4. Portfolio Consistency</h4>
+                            <p style="color: #475569; margin-bottom: 0.25rem;"><strong>ASK:</strong> "Do you look at all your properties the same way?"</p>
+                            <p style="color: #64748b; font-size: 0.9rem;"><strong>FOLLOW-UP:</strong> "How are you changing your marketing for each of those?"</p>
+                        </div>
+                        <div style="background: #f8fafc; padding: 1.25rem; border-radius: 8px; border-left: 4px solid #1e3a5f;">
+                            <h4 style="color: #1e3a5f; margin-bottom: 0.5rem;">5. Decision Speed & Predictability</h4>
+                            <p style="color: #475569; margin-bottom: 0.25rem;"><strong>ASK:</strong> "When performance changes at a site, is that predictable for you today?"</p>
+                        </div>
+                        <div style="background: #f8fafc; padding: 1.25rem; border-radius: 8px; border-left: 4px solid #1e3a5f;">
+                            <h4 style="color: #1e3a5f; margin-bottom: 0.5rem;">6. Ad Spend Attribution</h4>
+                            <p style="color: #475569; margin-bottom: 0.25rem;"><strong>ASK:</strong> "How do you know which ad campaigns are actually bringing in customers?"</p>
+                            <p style="color: #64748b; font-size: 0.9rem;"><strong>FOLLOW-UP:</strong> "When someone calls or moves in, do you know which ad they came from?"</p>
+                        </div>
+                        <div style="background: #f8fafc; padding: 1.25rem; border-radius: 8px; border-left: 4px solid #1e3a5f;">
+                            <h4 style="color: #1e3a5f; margin-bottom: 0.5rem;">7. Budget Allocation Strategy</h4>
+                            <p style="color: #475569; margin-bottom: 0.25rem;"><strong>ASK:</strong> "How do you decide how much to spend on each facility?"</p>
+                            <p style="color: #64748b; font-size: 0.9rem;"><strong>FOLLOW-UP:</strong> "Do you split it evenly, or do some get more?"</p>
+                        </div>
+                        <div style="background: #f8fafc; padding: 1.25rem; border-radius: 8px; border-left: 4px solid #1e3a5f;">
+                            <h4 style="color: #1e3a5f; margin-bottom: 0.5rem;">8. Competitive Intelligence</h4>
+                            <p style="color: #475569; margin-bottom: 0.25rem;"><strong>ASK:</strong> "How do you know when competitors are undercutting you on price?"</p>
+                            <p style="color: #64748b; font-size: 0.9rem;"><strong>FOLLOW-UP:</strong> "How quickly do you find out?"</p>
+                        </div>
+                        <div style="background: #f8fafc; padding: 1.25rem; border-radius: 8px; border-left: 4px solid #1e3a5f;">
+                            <h4 style="color: #1e3a5f; margin-bottom: 0.5rem;">9. Unit-Level Visibility</h4>
+                            <p style="color: #475569; margin-bottom: 0.25rem;"><strong>ASK:</strong> "Can you see which specific unit sizes are underperforming?"</p>
+                            <p style="color: #64748b; font-size: 0.9rem;"><strong>FOLLOW-UP:</strong> "If 10x10s are sitting empty but 5x5s are full, would you know?"</p>
+                        </div>
+                        <div style="background: #f8fafc; padding: 1.25rem; border-radius: 8px; border-left: 4px solid #1e3a5f;">
+                            <h4 style="color: #1e3a5f; margin-bottom: 0.5rem;">10. Time to Value</h4>
+                            <p style="color: #475569; margin-bottom: 0.25rem;"><strong>ASK:</strong> "When you make a change, how long before you know if it worked?"</p>
+                            <p style="color: #64748b; font-size: 0.9rem;"><strong>FOLLOW-UP:</strong> "What if you could see results in 14 days instead of 30-60?"</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function loadObjectionHandling(container) {
+            container.innerHTML = `
+                <div style="background: white; border-radius: 16px; padding: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05); max-height: calc(100vh - 4rem); overflow-y: auto;">
+                    <h2 style="color: #1e3a5f; margin-bottom: 1.5rem;">Objection Responses</h2>
+                    <div style="display: grid; gap: 1rem;">
+                        <div style="background: #f8fafc; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #ef4444;">
+                            <h4 style="color: #1e3a5f; margin-bottom: 0.75rem;">"We already have an agency."</h4>
+                            <p style="color: #475569; line-height: 1.7;">"Agencies optimize ads. They don't see occupancy, move-in velocity, or pricing. They can't tell you which campaigns actually fill units. We connect the dots they can't."</p>
+                        </div>
+                        <div style="background: #f8fafc; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #ef4444;">
+                            <h4 style="color: #1e3a5f; margin-bottom: 0.75rem;">"We already have a pricing tool."</h4>
+                            <p style="color: #475569; line-height: 1.7;">"Pricing tools don't see demand signals from your ads. They operate in isolation. This coordinates pricing and marketing with the same reality."</p>
+                        </div>
+                        <div style="background: #f8fafc; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #ef4444;">
+                            <h4 style="color: #1e3a5f; margin-bottom: 0.75rem;">"This sounds like extra work."</h4>
+                            <p style="color: #475569; line-height: 1.7;">"Less work, not more. One dashboard instead of five exports. 30-minute check-ins instead of 2-hour spreadsheet sessions."</p>
+                        </div>
+                        <div style="background: #f8fafc; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #ef4444;">
+                            <h4 style="color: #1e3a5f; margin-bottom: 0.75rem;">"Data access / IT will block this."</h4>
+                            <p style="color: #475569; line-height: 1.7;">"We integrate with standard PMS APIs and Google Ads. Most operators connect in under an hour. No IT involvement required."</p>
+                        </div>
+                        <div style="background: #f8fafc; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #ef4444;">
+                            <h4 style="color: #1e3a5f; margin-bottom: 0.75rem;">"I don't want anything changing without approval."</h4>
+                            <p style="color: #475569; line-height: 1.7;">"Neither do we. We start in recommendation mode. You see every decision, every reason — before anything runs automatically. You stay in control."</p>
+                        </div>
+                        <div style="background: #f8fafc; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #ef4444;">
+                            <h4 style="color: #1e3a5f; margin-bottom: 0.75rem;">"We're already doing fine."</h4>
+                            <p style="color: #475569; line-height: 1.7;">"I hear that. Most operators we talk to say the same thing. The question isn't whether you're doing fine — it's whether you're leaving money on the table. We found [customer] thought they were doing fine too. Turned out they were losing $50K a month in hidden waste."</p>
+                        </div>
+                    </div>
                 </div>
             `;
         }

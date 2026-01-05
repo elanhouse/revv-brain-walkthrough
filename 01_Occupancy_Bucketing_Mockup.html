@@ -318,9 +318,36 @@
                 grid-template-columns: 1fr;
             }
         }
+        /* Staff-only content */
+        .staff-only {
+            display: none;
+        }
+
+        body.staff-view .staff-only {
+            display: block;
+        }
+
+        body.owner-view .staff-only {
+            display: none;
+        }
+
+        /* View-specific styling */
+        body.staff-view .header {
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+        }
+
+        body.owner-view .header {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d4a6f 100%);
+        }
     </style>
 </head>
 <body>
+    <script>
+        // Check URL parameter for view mode
+        const urlParams = new URLSearchParams(window.location.search);
+        const view = urlParams.get('view') || 'owner';
+        document.body.classList.add(view + '-view');
+    </script>
     <div class="container">
         <div class="header">
             <h1>🏢 Your Portfolio: More Than Just Occupancy</h1>
@@ -461,6 +488,15 @@
                         They went from 97% at $120/month to 97% at $140/month. Same occupancy, $20 more per unit—that's $24,000 more per year on a 100-unit facility."
                     </p>
                 </div>
+
+                <!-- Staff-only: Talking points -->
+                <div class="staff-only" style="margin-top: 1rem; padding: 1rem; background: #fef3c7; border-radius: 8px; border-left: 4px solid #f59e0b;">
+                    <h6 style="color: #92400e; margin-bottom: 0.5rem; font-size: 0.75rem; text-transform: uppercase;">💡 What to Say</h6>
+                    <p style="color: #78350f; font-size: 0.85rem; line-height: 1.5; margin: 0;">
+                        "These are your best facilities. High occupancy, customers stay long-term. Most operators think 'it's full, turn off ads.' 
+                        That's leaving money on the table. New tenants at higher rates give you ECRI headroom."
+                    </p>
+                </div>
             </div>
 
             <!-- CASH COWS BUCKET -->
@@ -520,6 +556,15 @@
                         "One operator had a facility at 92% occupancy. Looked great on paper. But customers were leaving after just 3 months. 
                         They were spending $3,000/month on ads just to replace churn. We cut ad spend 40%, raised prices $12, and focused on retention. 
                         Occupancy stayed at 92%, but revenue went up $8,000/month because customers stayed longer. That's $96,000 more per year."
+                    </p>
+                </div>
+
+                <!-- Staff-only: Talking points -->
+                <div class="staff-only" style="margin-top: 1rem; padding: 1rem; background: #fef3c7; border-radius: 8px; border-left: 4px solid #f59e0b;">
+                    <h6 style="color: #92400e; margin-bottom: 0.5rem; font-size: 0.75rem; text-transform: uppercase;">💡 What to Say</h6>
+                    <p style="color: #78350f; font-size: 0.85rem; line-height: 1.5; margin: 0;">
+                        "These look good on paper—high occupancy—but customers are leaving fast. That's expensive. You're constantly refilling units. 
+                        High churn means you're either in a price-sensitive market or there's an operational issue."
                     </p>
                 </div>
             </div>
@@ -587,6 +632,15 @@
                         Same customer quality, just more of them. That's 10% more occupancy—on a 200-unit facility, that's 20 more units at $150/month = $36,000 more per year."
                     </p>
                 </div>
+
+                <!-- Staff-only: Talking points -->
+                <div class="staff-only" style="margin-top: 1rem; padding: 1rem; background: #fef3c7; border-radius: 8px; border-left: 4px solid #f59e0b;">
+                    <h6 style="color: #92400e; margin-bottom: 0.5rem; font-size: 0.75rem; text-transform: uppercase;">💡 What to Say</h6>
+                    <p style="color: #78350f; font-size: 0.85rem; line-height: 1.5; margin: 0;">
+                        "These facilities have good fundamentals—customers stay when they move in—but they just need more volume. 
+                        This is where you should be spending aggressively. If customers stay once they move in, the problem is awareness or demand, not operations."
+                    </p>
+                </div>
             </div>
 
             <!-- TURNAROUND BUCKET -->
@@ -648,6 +702,15 @@
                         Went from 65% to 82% in 6 months. That's 17% more occupancy—on a 150-unit facility, that's 25 more units at $130/month = $39,000 more per year."
                     </p>
                 </div>
+
+                <!-- Staff-only: Talking points -->
+                <div class="staff-only" style="margin-top: 1rem; padding: 1rem; background: #fef3c7; border-radius: 8px; border-left: 4px solid #f59e0b;">
+                    <h6 style="color: #92400e; margin-bottom: 0.5rem; font-size: 0.75rem; text-transform: uppercase;">💡 What to Say</h6>
+                    <p style="color: #78350f; font-size: 0.85rem; line-height: 1.5; margin: 0;">
+                        "These are your problem facilities. Low occupancy AND customers leaving fast. Something's wrong—either operations, market, or both. 
+                        You can't ad-spend your way out of operational problems. Fix the root cause first, then market aggressively."
+                    </p>
+                </div>
             </div>
         </div>
 
@@ -663,6 +726,22 @@
                 You'll see which facilities are in which bucket, what you're doing now vs what you should be doing, 
                 and how much money you're leaving on the table by treating them all the same.
             </p>
+            <!-- Staff-only: Close script -->
+            <div class="staff-only" style="margin-top: 2rem; padding: 1.5rem; background: rgba(255,255,255,0.15); border-radius: 8px; border: 2px solid rgba(255,255,255,0.3);">
+                <h4 style="margin-bottom: 1rem; font-size: 1rem;">🎯 The Close</h4>
+                <p style="margin-bottom: 0.75rem; line-height: 1.7;">
+                    <strong>SAY:</strong> "In our 14-day diagnostic, we'll create this exact breakdown for your portfolio. We'll show you:
+                </p>
+                <ul style="margin-left: 1.5rem; margin-bottom: 0.75rem; line-height: 1.7;">
+                    <li>Which facilities are in which bucket</li>
+                    <li>What you're doing now vs what you should be doing</li>
+                    <li>How much money you're leaving on the table by treating them all the same</li>
+                    <li>Specific recommendations for each bucket"</li>
+                </ul>
+                <p style="line-height: 1.7;">
+                    <strong>SHOW THEM:</strong> "Here's what it looks like for a similar operator." [Point to the summary above]
+                </p>
+            </div>
         </div>
     </div>
 </body>
