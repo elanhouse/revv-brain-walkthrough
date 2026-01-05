@@ -64,13 +64,18 @@
         }
 
         .menu-item {
-            display: block;
+            display: flex;
+            align-items: center;
             padding: 0.875rem 1.5rem;
             color: white;
             text-decoration: none;
             transition: all 0.2s;
             border-left: 3px solid transparent;
             cursor: pointer;
+        }
+
+        .menu-item > div {
+            flex: 1;
         }
 
         .menu-item:hover {
@@ -256,50 +261,81 @@
         </div>
 
         <div class="menu-section">
-            <div class="menu-section-title">Portfolio Analysis</div>
+            <div class="menu-section-title">Start Here - Your Portfolio</div>
             <a href="#" class="menu-item active" onclick="showDemo('occupancy-bucketing', event)">
                 <span class="menu-item-number">01</span>
-                Occupancy Bucketing
+                <div>
+                    <div style="font-weight: 600;">Your Facilities at a Glance</div>
+                    <div style="font-size: 0.75rem; opacity: 0.8; margin-top: 2px;">Simple view: occupancy % by facility</div>
+                </div>
             </a>
-            <a href="#" class="menu-item" onclick="showDemo('detection-speed', event)">
+            <a href="#" class="menu-item" onclick="showDemo('hidden-cost', event)">
                 <span class="menu-item-number">02</span>
-                Detection Speed
+                <div>
+                    <div style="font-weight: 600;">The Hidden Cost of High Occupancy</div>
+                    <div style="font-size: 0.75rem; opacity: 0.8; margin-top: 2px;">92% occupancy, but customers leave in 3 months</div>
+                </div>
             </a>
-            <a href="#" class="menu-item" onclick="showDemo('customer-quality', event)">
+        </div>
+
+        <div class="menu-section">
+            <div class="menu-section-title">Where Money is Leaking</div>
+            <a href="#" class="menu-item" onclick="showDemo('ad-spend-need', event)">
                 <span class="menu-item-number">03</span>
-                Customer Quality
+                <div>
+                    <div style="font-weight: 600;">Ad Spend vs Need</div>
+                    <div style="font-size: 0.75rem; opacity: 0.8; margin-top: 2px;">$500/day on 97% vs 75% facilities?</div>
+                </div>
             </a>
             <a href="#" class="menu-item" onclick="showDemo('ad-attribution', event)">
                 <span class="menu-item-number">04</span>
-                Ad Spend Attribution
-            </a>
-        </div>
-
-        <div class="menu-section">
-            <div class="menu-section-title">Optimization</div>
-            <a href="#" class="menu-item" onclick="showDemo('budget-allocation', event)">
-                <span class="menu-item-number">05</span>
-                Budget Allocation
-            </a>
-            <a href="#" class="menu-item" onclick="showDemo('competitive-intel', event)">
-                <span class="menu-item-number">06</span>
-                Competitive Intel
+                <div>
+                    <div style="font-weight: 600;">Which Ads Actually Work</div>
+                    <div style="font-size: 0.75rem; opacity: 0.8; margin-top: 2px;">Find 40% waste in 14 days</div>
+                </div>
             </a>
             <a href="#" class="menu-item" onclick="showDemo('unit-level', event)">
-                <span class="menu-item-number">07</span>
-                Unit-Level Visibility
+                <span class="menu-item-number">05</span>
+                <div>
+                    <div style="font-weight: 600;">Unit-Level Blind Spots</div>
+                    <div style="font-size: 0.75rem; opacity: 0.8; margin-top: 2px;">88% facility, but 10x10s at 60%</div>
+                </div>
             </a>
         </div>
 
         <div class="menu-section">
-            <div class="menu-section-title">Coming Soon</div>
+            <div class="menu-section-title">Catch Problems Early</div>
+            <a href="#" class="menu-item" onclick="showDemo('detection-speed', event)">
+                <span class="menu-item-number">06</span>
+                <div>
+                    <div style="font-weight: 600;">2-Week Early Warning</div>
+                    <div style="font-size: 0.75rem; opacity: 0.8; margin-top: 2px;">See drops before they hit occupancy</div>
+                </div>
+            </a>
+            <a href="#" class="menu-item" onclick="showDemo('competitive-intel', event)">
+                <span class="menu-item-number">07</span>
+                <div>
+                    <div style="font-weight: 600;">Competitive Moves</div>
+                    <div style="font-size: 0.75rem; opacity: 0.8; margin-top: 2px;">Occupancy dropped? Competitor cut prices</div>
+                </div>
+            </a>
+        </div>
+
+        <div class="menu-section">
+            <div class="menu-section-title">Maximize Revenue</div>
             <a href="#" class="menu-item" onclick="showDemo('pricing-power', event)">
                 <span class="menu-item-number">08</span>
-                Pricing Power Analysis
+                <div>
+                    <div style="font-weight: 600;">Raise Prices Where You Can</div>
+                    <div style="font-size: 0.75rem; opacity: 0.8; margin-top: 2px;">$15-25/month at 95%+ facilities</div>
+                </div>
             </a>
             <a href="#" class="menu-item" onclick="showDemo('portfolio-health', event)">
                 <span class="menu-item-number">09</span>
-                Portfolio Health Score
+                <div>
+                    <div style="font-weight: 600;">Portfolio Health Score</div>
+                    <div style="font-size: 0.75rem; opacity: 0.8; margin-top: 2px;">One number for 50+ facilities</div>
+                </div>
             </a>
         </div>
     </aside>
@@ -309,28 +345,28 @@
         <div class="demo-container">
             <!-- Welcome Screen -->
             <div class="welcome-screen" id="welcome-screen">
-                <h2>Welcome to Revv Brain Demo</h2>
+                <h2>See Your Portfolio Differently</h2>
                 <p>
-                    Walk through our sales artifacts one by one. Each demo shows how we help storage owners 
-                    make better decisions about their portfolio, marketing, and pricing.
+                    Most operators only see occupancy percentages. We'll show you what's really happening—where money is leaking, 
+                    where problems are starting, and where opportunities are hiding. Start simple, build from there.
                 </p>
                 <div class="demo-grid">
                     <div class="demo-card" onclick="showDemo('occupancy-bucketing', event)">
                         <div class="demo-card-number">01</div>
-                        <h3>Occupancy Bucketing</h3>
-                        <p>See how we group properties into strategic buckets based on occupancy and customer retention.</p>
+                        <h3>Your Facilities at a Glance</h3>
+                        <p>Start simple: see all your facilities with occupancy percentages. Then discover why treating them all the same is leaving money on the table.</p>
                         <span class="demo-card-status">Ready</span>
                     </div>
-                    <div class="demo-card" onclick="showDemo('detection-speed', event)">
+                    <div class="demo-card" onclick="showDemo('hidden-cost', event)">
                         <div class="demo-card-number">02</div>
-                        <h3>Detection Speed</h3>
-                        <p>Early warning signals that catch problems 2 weeks before they become visible.</p>
+                        <h3>The Hidden Cost of High Occupancy</h3>
+                        <p>92% occupancy looks great—until you see customers leaving after 3 months. Learn why high occupancy doesn't always mean healthy.</p>
                         <span class="demo-card-status coming-soon">Coming Soon</span>
                     </div>
-                    <div class="demo-card" onclick="showDemo('customer-quality', event)">
+                    <div class="demo-card" onclick="showDemo('ad-spend-need', event)">
                         <div class="demo-card-number">03</div>
-                        <h3>Customer Quality</h3>
-                        <p>Which campaigns bring long-term customers vs. short-term renters.</p>
+                        <h3>Ad Spend vs Need</h3>
+                        <p>Why spend $500/day on a facility at 97% when one at 75% needs help? See where your ad dollars should actually go.</p>
                         <span class="demo-card-status coming-soon">Coming Soon</span>
                     </div>
                 </div>
@@ -372,6 +408,24 @@
             
             if (demoId === 'occupancy-bucketing') {
                 loadOccupancyBucketing(container);
+            } else if (demoId === 'hidden-cost' || demoId === 'ad-spend-need' || demoId === 'ad-attribution' || demoId === 'unit-level' || demoId === 'detection-speed' || demoId === 'competitive-intel' || demoId === 'pricing-power' || demoId === 'portfolio-health') {
+                // Coming soon demos
+                container.innerHTML = `
+                    <div class="welcome-screen">
+                        <h2>${getDemoTitle(demoId)}</h2>
+                        <p>This demo is coming soon. We're building it to be simple and clear—starting with occupancy, then revealing one insight at a time.</p>
+                        <button onclick="showDemo('occupancy-bucketing', event)" style="
+                            background: #1e3a5f;
+                            color: white;
+                            border: none;
+                            padding: 0.75rem 2rem;
+                            border-radius: 8px;
+                            font-size: 1rem;
+                            cursor: pointer;
+                            margin-top: 1rem;
+                        ">View Available Demo</button>
+                    </div>
+                `;
             } else {
                 container.innerHTML = `
                     <div class="welcome-screen">
@@ -399,13 +453,15 @@
 
         function getDemoTitle(demoId) {
             const titles = {
-                'detection-speed': 'Detection Speed',
-                'customer-quality': 'Customer Quality',
-                'ad-attribution': 'Ad Spend Attribution',
-                'budget-allocation': 'Budget Allocation',
-                'competitive-intel': 'Competitive Intelligence',
-                'unit-level': 'Unit-Level Visibility',
-                'pricing-power': 'Pricing Power Analysis',
+                'hidden-cost': 'The Hidden Cost of High Occupancy',
+                'ad-spend-need': 'Ad Spend vs Need',
+                'detection-speed': '2-Week Early Warning',
+                'customer-quality': 'Which Customers Stay 18+ Months',
+                'ad-attribution': 'Which Ads Actually Work',
+                'budget-allocation': 'Stop Splitting Budget Evenly',
+                'competitive-intel': 'Competitive Moves',
+                'unit-level': 'Unit-Level Blind Spots',
+                'pricing-power': 'Raise Prices Where You Can',
                 'portfolio-health': 'Portfolio Health Score'
             };
             return titles[demoId] || 'Demo';
